@@ -1,0 +1,19 @@
+# Java / Spring
+target/
+*.jar
+*.war
+*.class
+*.log
+
+# React / Node
+robbery-ui/node_modules/
+robbery-ui/build/
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
