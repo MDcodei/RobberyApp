@@ -1,0 +1,74 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Full black app background */
+html, body, #root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: #000; /* full black */
+  color: #eee;
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
+}
+
+.app-shell {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  padding: 18px;
+}
+
+/* Hero heading */
+.hero {
+  text-align: center;
+  padding: 24px 10px 12px;
+}
+.hero h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffd700; /* vault gold */
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.35);
+}
+.tagline {
+  margin-top: 8px;
+  color: #bfbfbf;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}

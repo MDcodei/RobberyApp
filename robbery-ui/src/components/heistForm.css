@@ -1,0 +1,79 @@
+.heist-container {
+  width: 100%;
+  max-width: 720px;
+  margin: 12px auto 24px;
+  padding: 18px;
+  background: #0b0b0b;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.05);
+}
+
+.section {
+  margin-bottom: 18px;
+}
+
+.section label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #e6e6e6;
+  margin-bottom: 8px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+  background: #141414;
+  color: #ddd;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.btn:hover { background: #1a1a1a; transform: translateY(-1px); }
+.selected {
+  background: #c9a100; color: #000; border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.35);
+}
+
+.tool-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.tool-chip {
+  padding: 6px 12px;
+  background: #141414;
+  border-radius: 16px;
+  border: 1px solid #2a2a2a;
+  cursor: pointer;
+  color: #cfcfcf;
+  transition: 0.2s ease;
+  font-size: 13px;
+}
+.tool-chip:hover { background: #1a1a1a; transform: translateY(-1px); }
+.tool-chip.active {
+  background: #940000; border-color: #ff3b3b; color: #fff;
+  box-shadow: 0 0 10px rgba(255, 59, 59, 0.35);
+}
+
+.actions { display: flex; gap: 10px; justify-content: center; }
+.action-btn {
+  padding: 10px 16px; font-size: 15px; font-weight: 900;
+  border-radius: 10px; cursor: pointer; border: none; transition: 0.2s ease;
+  background: #0044aa; color: #fff; text-transform: uppercase; letter-spacing: 0.6px;
+}
+.action-btn:hover { background: #0a58cf; transform: translateY(-2px); box-shadow: 0 0 10px rgba(0, 128, 255, 0.35); }
+.action-btn.danger { background: #b30000; }
+.action-btn.danger:hover { background: #d10000; box-shadow: 0 0 10px rgba(255, 20, 20, 0.35); }
+
+/* Dark scrollbar for consistency */
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
