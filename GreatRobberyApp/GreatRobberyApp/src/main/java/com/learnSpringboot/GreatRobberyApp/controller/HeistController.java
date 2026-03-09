@@ -6,6 +6,7 @@ import com.learnSpringboot.GreatRobberyApp.services.HeistServices;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/heists")
@@ -20,11 +21,17 @@ public class HeistController {
     // -------------------------------------------
     // PLAN A HEIST
     // -------------------------------------------
-    @PostMapping("/plan")
+   /* @PostMapping("/plan")
     public String planHeist(@RequestBody Heist heist) {
         service.addPlannedHeist(heist);
         return "Heist planned successfully!";
-    }
+    }*/
+
+    @PostMapping("/plan")
+    public Map<String, Object> planHeist(@RequestBody Heist heist) {
+    service.addPlannedHeist(heist);
+    return Map.of("message", "Heist planned successfully!", "id", heist.getId());
+}
 
     // -------------------------------------------
     // VIEW PLANNED HEISTS
@@ -49,4 +56,12 @@ public class HeistController {
     public List<HeistResult> simulateAll() {
         return service.simulateAllHeists();
     }
+
+    @PostMapping("/{id}/simulate")
+public HeistResult simulateById(@PathVariable int id) {
+    Heist heist = service.getPlannedHeistById(id);
+    return service.simulateSingleHeist(heist);
+}
+
+    
 }

@@ -4,13 +4,17 @@ import com.learnSpringboot.GreatRobberyApp.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class HeistServices {
 
-    // Session state (moved from static fields)
+    // Session state
     private int heat = 0;
     private int streak = 0;
     private double totalEscapedLoot = 0.0;
@@ -21,19 +25,41 @@ public class HeistServices {
     private final Gang gang = new Gang();
     private final Police police = new Police();
 
-    // Store planned heists in memory
+    // For unique Heist IDs
+    private final AtomicInteger seq = new AtomicInteger(1);
+
+    // In-memory store of planned heists
     private final List<Heist> plannedHeists = new ArrayList<>();
 
     // ---------------------------
     // PUBLIC API METHODS
     // ---------------------------
 
-    public List<Heist> getPlannedHeists() {
-        return plannedHeists;
+    /** Assigns an ID if missing and stores the heist. */
+    public synchronized void addPlannedHeist(Heist heist) {
+        if (heist.getId() == null) {
+            heist.setId(seq.getAndIncrement()); // <-- assign id here
+        }
+        plannedHeists.add(heist);
+
+        // Debug: confirm IDs in console
+        System.out.println("[HeistServices] Planned heist id=" + heist.getId()
+                + " target=" + (heist.getTarget() != null ? heist.getTarget().name() : "null")
+                + " difficulty=" + (heist.getDifficulty() != null ? heist.getDifficulty().name() : "null")
+                + " escape=" + (heist.getEscape() != null ? heist.getEscape().name() : "null"));
     }
 
-    public void addPlannedHeist(Heist heist) {
-        plannedHeists.add(heist);
+    /** Returns a copy so callers can't mutate internal list. */
+    public synchronized List<Heist> getPlannedHeists() {
+        return new ArrayList<>(plannedHeists);
+    }
+
+    /** Finds a planned heist by ID or throws. */
+    public synchronized Heist getPlannedHeistById(int id) {
+        return plannedHeists.stream()
+                .filter(h -> Objects.equals(h.getId(), id))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Heist not found: " + id));
     }
 
     public HeistResult simulateSingleHeist(Heist heist) {
@@ -42,21 +68,20 @@ public class HeistServices {
         return toResult(outcome);
     }
 
-    public List<HeistResult> simulateAllHeists() {
+    public synchronized List<HeistResult> simulateAllHeists() {
         List<HeistResult> results = new ArrayList<>();
-
         for (Heist heist : plannedHeists) {
             HeistOutcome outcome = resolveHeist(heist);
             applyOutcome(outcome);
             results.add(toResult(outcome));
         }
-
+        // If you want to keep planned heists after simulating-all, comment the next line:
         plannedHeists.clear();
         return results;
     }
 
     // ----------------------------
-    // CORE LOGIC (converted from old file)
+    // CORE LOGIC
     // ----------------------------
 
     private HeistOutcome resolveHeist(Heist heist) {
@@ -102,7 +127,6 @@ public class HeistServices {
 
         if (success) {
             Building targetBuilding = null;
-
             for (Building b : city.getBuildings()) {
                 if (b.getName().equals(heist.getTarget().getName())) {
                     targetBuilding = b;
@@ -117,11 +141,8 @@ public class HeistServices {
             }
 
             // Bonus 10% for gun + knife
-            boolean hasGun = heist.getTools().stream()
-                    .anyMatch(i -> i.getName().equals("gun"));
-
-            boolean hasKnife = heist.getTools().stream()
-                    .anyMatch(i -> i.getName().equals("knife"));
+            boolean hasGun = heist.getTools().stream().anyMatch(i -> "gun".equals(i.getName()));
+            boolean hasKnife = heist.getTools().stream().anyMatch(i -> "knife".equals(i.getName()));
 
             if (hasGun && hasKnife) {
                 lootValue *= 1.10;
@@ -142,18 +163,24 @@ public class HeistServices {
         // ----- OUTCOME NARRATIVE -----
         String narrative;
         if (success) {
-            if (caughtByPolice) {
-                narrative = "Blue lights flood the alley; bags recovered.";
-            } else {
-                narrative = "The crew slips away with the goods.";
-            }
+            narrative = caughtByPolice
+                    ? "Blue lights flood the alley; bags recovered."
+                    : "The crew slips away with the goods.";
         } else {
             narrative = "A misstep at the skylight forces a retreat.";
         }
 
-        return new HeistOutcome(success, caughtByPolice, lootValue,
-                successRoll, chaseRoll, successChance, catchChance,
-                eventsApplied, narrative);
+        return new HeistOutcome(
+                success,
+                caughtByPolice,
+                lootValue,
+                successRoll,
+                chaseRoll,
+                successChance,
+                catchChance,
+                eventsApplied,
+                narrative
+        );
     }
 
     // ----------------------------
@@ -189,5 +216,4 @@ public class HeistServices {
                 o.getEventsApplied()
         );
     }
-
 }
