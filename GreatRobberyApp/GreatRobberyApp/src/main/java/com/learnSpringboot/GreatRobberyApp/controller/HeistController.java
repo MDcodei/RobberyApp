@@ -18,9 +18,6 @@ public class HeistController {
         this.service = service;
     }
 
-    // -------------------------------------------
-    // PLAN A HEIST
-    // -------------------------------------------
    /* @PostMapping("/plan")
     public String planHeist(@RequestBody Heist heist) {
         service.addPlannedHeist(heist);
@@ -33,35 +30,53 @@ public class HeistController {
     return Map.of("message", "Heist planned successfully!", "id", heist.getId());
 }
 
-    // -------------------------------------------
-    // VIEW PLANNED HEISTS
-    // -------------------------------------------
+
     @GetMapping("/planned")
     public List<Heist> getPlannedHeists() {
         return service.getPlannedHeists();
     }
 
-    // -------------------------------------------
-    // SIMULATE A SINGLE HEIST
-    // -------------------------------------------
+
     @PostMapping("/simulate")
     public HeistResult simulateSingleHeist(@RequestBody Heist heist) {
         return service.simulateSingleHeist(heist);
     }
 
-    // -------------------------------------------
-    // SIMULATE ALL HEISTS
-    // -------------------------------------------
+
     @PostMapping("/simulate-all")
     public List<HeistResult> simulateAll() {
         return service.simulateAllHeists();
     }
 
-    @PostMapping("/{id}/simulate")
-public HeistResult simulateById(@PathVariable int id) {
+//     @PostMapping("/{id}/simulate")
+// public HeistResult simulateById(@PathVariable int id) {
+//     Heist heist = service.getPlannedHeistById(id);
+//     return service.simulateSingleHeist(heist);
+// }
+
+@PostMapping("/{id}/simulate")
+public Map<String, Object> simulateById(@PathVariable int id) {
+
+    System.out.println(">>> HIT SIMULATE BY ID");  // DEBUG
+
     Heist heist = service.getPlannedHeistById(id);
-    return service.simulateSingleHeist(heist);
+    HeistResult result = service.simulateSingleHeist(heist);
+
+    String summary =
+            (result.isSuccess() ? "SUCCESS" : "FAILED") +
+            " | Target: " + heist.getTarget() +
+            " | Difficulty: " + heist.getDifficulty() +
+            " | Escape: " + heist.getEscape() +
+            " | Loot: $" + result.getLootValue() +
+            " | Mentor: " + heist.getMentorName();
+
+    return Map.of(
+            "summary", summary,
+            "success", result.isSuccess(),
+            "lootValue", result.getLootValue(),
+            "events", result.getEvents(),
+            "id", heist.getId()
+    );
 }
 
-    
 }

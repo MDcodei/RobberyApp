@@ -58,3 +58,96 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .err { color: #ff5a5a; }
+
+/* Backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999; /* above app chrome */
+}
+
+/* Modal card */
+.modal-card {
+  width: min(640px, 92vw);
+  background: #0d0f12; /* deep dark */
+  color: #e6edf3;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+}
+
+/* Close button */
+.modal-close {
+  appearance: none;
+  background: transparent;
+  color: #8b949e;
+  border: 0;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.modal-close:hover { color: #c9d1d9; }
+
+/* Body */
+.modal-body {
+  padding: 16px;
+}
+
+/* Footer */
+.modal-footer {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Reuse your existing .action-btn styles if present; else: */
+.action-btn {
+  background: #1f6feb;
+  color: white;
+  border: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.action-btn:hover { background: #2b7bff; }
+
+/* Heist-y multiline result */
+.result-pre {
+  margin: 0;
+  padding: 12px 14px;
+  background: #0a0c0f;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  white-space: pre-wrap; /* allow line breaks */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color: #e6edf3;
+}
+
+/* Optional: emphasize SUCCESS/FAILED in result */
+.result-pre::first-line {
+  font-weight: 700;
+  color: #79c0ff; /* blue accent */
+}

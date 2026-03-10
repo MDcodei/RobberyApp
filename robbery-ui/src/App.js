@@ -12,33 +12,33 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* Top Navigation */}
+      
       <NavBar />
 
-      {/* Entire Page Shell */}
+      
       <div className="app-shell">
 
-        {/* Hero Header */}
+        
         <header className="hero">
           <h1>Welcome to Great Robbery App</h1>
           <p className="tagline">Blueprints. Crew. Execution. All in one place.</p>
         </header>
 
-        {/* Route Views */}
+        
         <Routes>
 
-          {/* Home → Plan Heist */}
+          
           <Route
             path="/"
             element={<HeistForm onResult={(res) => setResult(res)} />}
           />
 
-          {/* Planned Heists */}
+          
           <Route path="/planned" element={<PlannedHeists />} />
 
         </Routes>
 
-        {/* Show Heist Result (only if exists) */}
+        
         {result && (
           <div className="result-box">
             <h2>Simulation Result</h2>

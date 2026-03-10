@@ -1,12 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { getPlannedHeists, simulateHeistById } from "../api/heists";
 import "./plannedHeists.css";
+import HeistSVG from "./HeistSVG"; 
+
+
+
+function Modal({ open, title, children, onClose }) {
+  if (!open) return null;
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>{title}</h3>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">{children}</div>
+        <div className="modal-footer">
+          <button className="simulate-btn" onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function PlannedHeists() {
   const [heists, setHeists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [simulatingId, setSimulatingId] = useState(null);
   const [error, setError] = useState("");
+
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalContent, setModalContent] = useState("");
 
   async function load() {
     try {
@@ -22,18 +49,88 @@ export default function PlannedHeists() {
 
   useEffect(() => { load(); }, []);
 
+
   async function handleSimulate(id) {
-    try {
-      setSimulatingId(id);
-      const result = await simulateHeistById(id); // or simulateHeist(heist.payload)
-      // You can show a toast or navigate to a "results" page
-      alert(result?.summary || "Simulation complete.");
-    } catch (e) {
-      alert("Failed to simulate this heist.");
-    } finally {
-      setSimulatingId(null);
+  try {
+    setSimulatingId(id);
+    const result = await simulateHeistById(id);
+    console.log("Simulation result (raw):", result);
+    console.log("Type of success:", typeof result.success, "Value:", result.success);
+
+    const heist = heists.find(h => h.id === id);
+    if (!heist) {
+      throw new Error(`Heist ${id} not found in state`);
     }
+
+  
+    const normalizeTarget = (t) => {
+      const x = String(t || "").trim().toUpperCase();
+ 
+      if (x === "POST OFFICE") return "POST_OFFICE";
+      return ["BANK", "MANSION", "POST_OFFICE", "SUPERMARKET"].includes(x) ? x : "BANK";
+    };
+
+    const normalizeEscape = (e) => {
+      const x = String(e || "").trim().toUpperCase().replace(/\s+/g, "_");
+      return ["CAR", "BIKE", "BOAT", "ON_FOOT"].includes(x) ? x : "ON_FOOT";
+    };
+
+    const normalizeSuccess = (s) => {
+    
+      if (typeof s === "boolean") return s;
+      if (typeof s === "string") return s.trim().toLowerCase() === "true";
+      return !!s;
+    };
+
+    const normTarget = normalizeTarget(heist.target);
+    const normEscape = normalizeEscape(heist.escape);
+    const normSuccess = normalizeSuccess(result?.success);
+
+   
+    const targetClass = `target-${normTarget.replace("_", "-").toLowerCase()}`;  
+    const escapeClass = `escape-${normEscape.toLowerCase()}`;                    
+    const outcomeClass = normSuccess ? "outcome-success" : "outcome-fail";
+
+    console.log("HeistSVG props (normalized):", {
+      target: normTarget,
+      success: normSuccess,
+      escape: normEscape
+    });
+    console.log("Expect SVG classnames:", `heist-svg ${outcomeClass} ${targetClass} ${escapeClass}`);
+
+    setModalTitle(`Heist #${id} Simulation`);
+
+    console.log(
+  "FINAL SVG SHOULD HAVE CLASS:",
+  `heist-svg outcome-${result.success ? "success" : "fail"} target-${heist.target.replace("_","-").toLowerCase()} escape-${heist.escape.toLowerCase()}`
+);
+
+    setModalContent(
+      <>
+        <HeistSVG
+          key={`${id}-${String(result?.success)}-${heist.escape}-${heist.target}`}
+          target={normTarget}
+          success={normSuccess}
+          escape={normEscape}
+          height={260}
+        />
+
+        <pre className="result-pre" style={{ marginTop: "12px" }}>
+          {result?.summary || "Simulation complete."}
+        </pre>
+      </>
+    );
+
+    setModalOpen(true);
+  } catch (e) {
+    console.error(e);
+    setModalTitle("Error");
+    setModalContent("Failed to simulate this heist.");
+    setModalOpen(true);
+  } finally {
+    setSimulatingId(null);
   }
+}
 
   if (loading) return <div className="ph-wrap"><div className="loader" /></div>;
   if (error) return <div className="ph-wrap"><p className="err">{error}</p></div>;
@@ -64,6 +161,16 @@ export default function PlannedHeists() {
           </li>
         ))}
       </ul>
+
+
+      <Modal
+        open={modalOpen}
+        title={modalTitle}
+        onClose={() => setModalOpen(false)}
+      >
+        {modalContent}
+      </Modal>
+
     </div>
   );
 }

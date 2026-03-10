@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { simulateHeist, planHeist, getMentorTools } from "../api/heists";
+import { planHeist, getMentorTools } from "../api/heists";
 
 import "./heistForm.css";
 
@@ -11,7 +11,7 @@ export default function HeistForm({ onResult }) {
   const [tools, setTools] = useState([]);
 
   useEffect(() => {
-    const mentorShort = mentorName.split(" ")[0]; // "Rob" or "Bobby"
+    const mentorShort = mentorName.split(" ")[0]; 
     async function load() {
       const baseTools = await getMentorTools(mentorShort);
       setTools(baseTools);
@@ -34,15 +34,15 @@ export default function HeistForm({ onResult }) {
   };
 
   
-async function handleSimulate(id) {
-  try {
-    const result = await simulateHeist(id);
-    alert(`Simulated #${id}: ${result.success ? "SUCCESS" : "FAILED"} | $${result.lootValue ?? result.loot ?? 0}`);
-  } catch (e) {
-    console.error(e);
-    alert(`Failed to simulate #${id}: ${e.message}`);
-  }
-}
+// async function handleSimulate(id) {
+//   try {
+//     const result = await simulateHeist(id);
+//     alert(`Simulated #${id}: ${result.success ? "SUCCESS" : "FAILED"} | $${result.lootValue ?? result.loot ?? 0}`);
+//   } catch (e) {
+//     console.error(e);
+//     alert(`Failed to simulate #${id}: ${e.message}`);
+//   }
+// }
 
 
   async function handlePlan() {
@@ -57,9 +57,9 @@ async function handleSimulate(id) {
 
   return (
     <div className="heist-container">
-      {/* No title here — just sections / buttons */}
+      
 
-      {/* TARGET */}
+      
       <div className="section">
         <label>Target:</label>
         <div className="btn-group">
@@ -75,7 +75,7 @@ async function handleSimulate(id) {
         </div>
       </div>
 
-      {/* DIFFICULTY */}
+      
       <div className="section">
         <label>Difficulty:</label>
         <div className="btn-group">
@@ -91,7 +91,7 @@ async function handleSimulate(id) {
         </div>
       </div>
 
-      {/* ESCAPE */}
+      
       <div className="section">
         <label>Escape:</label>
         <div className="btn-group">
@@ -107,7 +107,7 @@ async function handleSimulate(id) {
         </div>
       </div>
 
-      {/* MENTOR */}
+      
       <div className="section">
         <label>Mentor:</label>
         <div className="btn-group">
@@ -123,7 +123,7 @@ async function handleSimulate(id) {
         </div>
       </div>
 
-      {/* TOOLS */}
+      
       <div className="section">
         <label>Tools {mentorName.split(" ")[0]} brings:</label>
         <div className="tool-list">
@@ -135,7 +135,7 @@ async function handleSimulate(id) {
         </div>
       </div>
 
-      {/* EXTRA TOOLS */}
+     
       <div className="section">
         <label>Add Extra Tools:</label>
         <div className="tool-list">
@@ -158,9 +158,9 @@ async function handleSimulate(id) {
         </div>
       </div>
 
-      {/* BUTTONS */}
+      
       <div className="section actions">
-        <button className="action-btn" onClick={() => handleSimulate}>Simulate</button>
+        
         <button className="action-btn danger" onClick={handlePlan}>Plan</button>
       </div>
     </div>
