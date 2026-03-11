@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getPlannedHeists, simulateHeistById } from "../api/heists";
+import { deleteHeist, updateHeist } from "../api/heists";
 import "./plannedHeists.css";
 import HeistSVG from "./HeistSVG"; 
 
@@ -29,6 +30,7 @@ export default function PlannedHeists() {
   const [loading, setLoading] = useState(true);
   const [simulatingId, setSimulatingId] = useState(null);
   const [error, setError] = useState("");
+  const [editHeist, setEditHeist] = useState(null);
 
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -132,6 +134,22 @@ export default function PlannedHeists() {
   }
 }
 
+async function handleDelete(id) {
+  const ok = window.confirm("Are you sure you want to delete this heist?");
+  if (!ok) return;
+
+  try {
+    await deleteHeist(id);
+    load(); // reload the updated planned heists
+  } catch (err) {
+    console.error("Delete failed:", err);
+    alert("Failed to delete heist.");
+  }
+}
+
+
+
+
   if (loading) return <div className="ph-wrap"><div className="loader" /></div>;
   if (error) return <div className="ph-wrap"><p className="err">{error}</p></div>;
   if (heists.length === 0) return <div className="ph-wrap"><p>No planned heists yet.</p></div>;
@@ -158,6 +176,14 @@ export default function PlannedHeists() {
             >
               {simulatingId === h.id ? "Simulating..." : "Simulate"}
             </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => handleDelete(h.id)}
+            >
+              Delete
+            </button>
+
+            
           </li>
         ))}
       </ul>

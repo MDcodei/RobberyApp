@@ -206,4 +206,21 @@ public class HeistServices {
                 o.getEventsApplied()
         );
     }
+
+    public void deleteHeist(int id) {
+    plannedHeists.removeIf(h -> h.getId() == id);
+}
+
+public Heist updateHeist(int id, Heist updated) {
+    for (Heist h : plannedHeists) {
+        if (h.getId() == id) {
+            h.setTarget(updated.getTarget());
+            h.setDifficulty(updated.getDifficulty());
+            h.setEscape(updated.getEscape());
+            h.setMentorName(updated.getMentorName());
+            return h;
+        }
+    }
+    throw new RuntimeException("Heist not found");
+}
 }

@@ -1,6 +1,7 @@
-
+import axios from "axios";
 const API_HEISTS  = "http://localhost:8080/api/heists";
 const API_MENTORS = "http://localhost:8080/api/mentors";
+
 
 export async function getMentorTools(mentorShortName) {
   const res = await fetch(`${API_MENTORS}/${encodeURIComponent(mentorShortName)}/tools`);
@@ -38,4 +39,24 @@ export async function simulateHeist(heistObject) {
   });
   if (!res.ok) throw new Error("Failed to simulate heist");
   return res.json(); 
+}
+
+
+
+export async function deleteHeist(id) {
+  const res = await fetch(`${API_HEISTS}/${id}`, {
+    method: "DELETE"
+  });
+  if (!res.ok) throw new Error("Failed to delete heist");
+  return res.json();
+}
+
+export async function updateHeist(id, updatedData) {
+  const res = await fetch(`${API_HEISTS}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedData)
+  });
+  if (!res.ok) throw new Error("Failed to update heist");
+  return res.json();
 }

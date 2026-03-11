@@ -24,6 +24,17 @@ public class HeistController {
         return "Heist planned successfully!";
     }*/
 
+    @DeleteMapping("/{id}")
+public Map<String, String> deleteHeist(@PathVariable int id) {
+    service.deleteHeist(id);
+    return Map.of("message", "Heist deleted");
+}
+
+@PutMapping("/{id}")
+public Heist updateHeist(@PathVariable int id, @RequestBody Heist updated) {
+    return service.updateHeist(id, updated);
+}
+
     @PostMapping("/plan")
     public Map<String, Object> planHeist(@RequestBody Heist heist) {
     service.addPlannedHeist(heist);
