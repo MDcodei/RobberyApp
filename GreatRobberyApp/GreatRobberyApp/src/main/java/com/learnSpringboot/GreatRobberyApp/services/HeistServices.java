@@ -1,6 +1,10 @@
 package com.learnSpringboot.GreatRobberyApp.services;
 
 import com.learnSpringboot.GreatRobberyApp.model.*;
+
+import com.learnSpringboot.GreatRobberyApp.repository.HeistRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class HeistServices {
 
+    
+    @Autowired
+    private HeistRepository repo;
+
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
  
     private int heat = 0;
     private int streak = 0;
@@ -26,36 +36,40 @@ public class HeistServices {
     private final Police police = new Police();
 
 
-    private final AtomicInteger seq = new AtomicInteger(1);
+    //private final AtomicInteger seq = new AtomicInteger(1);
 
 
-    private final List<Heist> plannedHeists = new ArrayList<>();
+    //private final List<Heist> plannedHeists = new ArrayList<>();
 
 
-    public synchronized void addPlannedHeist(Heist heist) {
-        if (heist.getId() == null) {
-            heist.setId(seq.getAndIncrement()); 
+    public synchronized Heist addPlannedHeist(Heist heist) {
+        if (heist.getHeistNumber() == 0) {
+            long next = sequenceGenerator.generateSequence(Heist.SEQUENCE_NAME);
+            heist.setHeistNumber(next);
+            //heist.setId(seq.getAndIncrement()); 
         }
-        plannedHeists.add(heist);
+        Heist saved = repo.save(heist);
 
         
-        System.out.println("[HeistServices] Planned heist id=" + heist.getId()
-                + " target=" + (heist.getTarget() != null ? heist.getTarget().name() : "null")
-                + " difficulty=" + (heist.getDifficulty() != null ? heist.getDifficulty().name() : "null")
-                + " escape=" + (heist.getEscape() != null ? heist.getEscape().name() : "null"));
+        System.out.println("[HeistServices] Planned heist heistNumber=" + heist.getHeistNumber()
+                + " target=" + (saved.getTarget() != null ? saved.getTarget().name() : "null")
+                + " difficulty=" + (saved.getDifficulty() != null ? saved.getDifficulty().name() : "null")
+                + " escape=" + (saved.getEscape() != null ? saved.getEscape().name() : "null"));
+        return saved;
     }
 
  
     public synchronized List<Heist> getPlannedHeists() {
-        return new ArrayList<>(plannedHeists);
+        return repo.findAll();
     }
 
     
-    public synchronized Heist getPlannedHeistById(int id) {
-        return plannedHeists.stream()
-                .filter(h -> Objects.equals(h.getId(), id))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Heist not found: " + id));
+    public synchronized Heist getPlannedHeistbyHeistNumber(long heistNumber) {
+        Heist h = repo.findByHeistNumber(heistNumber);
+        if (h == null) {
+            throw new NoSuchElementException("Heist with heistNumber " + heistNumber + " not found");
+        }
+        return h;
     }
 
     public HeistResult simulateSingleHeist(Heist heist) {
@@ -64,15 +78,16 @@ public class HeistServices {
         return toResult(outcome);
     }
 
-    public synchronized List<HeistResult> simulateAllHeists() {
+    
+public synchronized List<HeistResult> simulateAllHeists() {
+        List<Heist> all = repo.findAll();
         List<HeistResult> results = new ArrayList<>();
-        for (Heist heist : plannedHeists) {
+        for (Heist heist : all) {
             HeistOutcome outcome = resolveHeist(heist);
             applyOutcome(outcome);
             results.add(toResult(outcome));
         }
-        
-        plannedHeists.clear();
+        repo.deleteAll(); // same behavior as clearing the list
         return results;
     }
 
@@ -207,20 +222,23 @@ public class HeistServices {
         );
     }
 
-    public void deleteHeist(int id) {
-    plannedHeists.removeIf(h -> h.getId() == id);
-}
-
-public Heist updateHeist(int id, Heist updated) {
-    for (Heist h : plannedHeists) {
-        if (h.getId() == id) {
-            h.setTarget(updated.getTarget());
-            h.setDifficulty(updated.getDifficulty());
-            h.setEscape(updated.getEscape());
-            h.setMentorName(updated.getMentorName());
-            return h;
-        }
+    public synchronized void deleteHeist(long heistNumber) {
+        Heist h = repo.findByHeistNumber(heistNumber);
+        if (h != null) repo.delete(h);
     }
-    throw new RuntimeException("Heist not found");
-}
+
+
+ public synchronized Heist updateHeist(long heistNumber, Heist updated) {
+        Heist existing = repo.findByHeistNumber(heistNumber);
+        if (existing == null) throw new NoSuchElementException("Heist not found: " + heistNumber);
+
+        existing.setTarget(updated.getTarget());
+        existing.setDifficulty(updated.getDifficulty());
+        existing.setEscape(updated.getEscape());
+        existing.setMentorName(updated.getMentorName());
+        existing.setTools(updated.getTools());
+        existing.setNote(updated.getNote());
+
+        return repo.save(existing);
+    }
 }

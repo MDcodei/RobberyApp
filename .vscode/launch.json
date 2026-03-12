@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run GreatRobberyApp (Backend)",
+      "request": "launch",
+      "mainClass": "com.learnSpringboot.GreatRobberyApp.GreatRobberyAppApplication",
+      "projectName": "GreatRobberyApp", 
+      "cwd": "${workspaceFolder}/GreatRobberyApp/GreatRobberyApp"
+    }
+  ]
+}

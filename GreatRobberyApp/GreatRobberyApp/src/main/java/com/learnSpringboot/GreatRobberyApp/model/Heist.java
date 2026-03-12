@@ -1,27 +1,41 @@
 package com.learnSpringboot.GreatRobberyApp.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Document(collection = "plannedHeists")
 public class Heist {
 
-    // NEW: unique identifier for simulate-by-id, list lookups, etc.
-    private Integer id;
+    // MongoDB primary key
+    @Id
+    private String id;   // MongoDB ObjectId stored as String
 
-    private Target target;            // enum: BANK, MANSION, POST_OFFICE, SUPERMARKET
-    private Difficulty difficulty;    // enum: EASY, MEDIUM, HARD
-    private EscapeMethod escape;      // enum: CAR, BIKE, BOAT, ON_FOOT
+    // Auto-increment numeric ID
+    @Transient
+    public static final String SEQUENCE_NAME = "heist_sequence";
+
+    @Indexed(unique = true)
+    private long heistNumber;   // <-- This replaces your old Integer id
+
+    private Target target;            
+    private Difficulty difficulty;    
+    private EscapeMethod escape;      
     private List<Item> tools;
     private String note;
     private String mentorName;
 
-    // ✅ Required by Jackson
+    // Default ctor
     public Heist() {
         this.tools = new ArrayList<>();
         this.note = "";
     }
 
-    // Your original convenience ctor (kept)
+    // Your constructor kept exactly the same
     public Heist(Target target, Difficulty difficulty, EscapeMethod escape, String mentorName) {
         this.target = target;
         this.difficulty = difficulty;
@@ -32,7 +46,8 @@ public class Heist {
     }
 
     // ===== GETTERS =====
-    public Integer getId() { return id; }                   // NEW
+    public String getId() { return id; }
+    public long getHeistNumber() { return heistNumber; }
     public Target getTarget() { return target; }
     public Difficulty getDifficulty() { return difficulty; }
     public EscapeMethod getEscape() { return escape; }
@@ -41,12 +56,12 @@ public class Heist {
     public String getMentorName() { return mentorName; }
 
     // ===== SETTERS =====
-    public void setId(Integer id) { this.id = id; }         // NEW
+    public void setId(String id) { this.id = id; }
+    public void setHeistNumber(long heistNumber) { this.heistNumber = heistNumber; }
     public void setTarget(Target target) { this.target = target; }
     public void setDifficulty(Difficulty difficulty) { this.difficulty = difficulty; }
     public void setEscape(EscapeMethod escape) { this.escape = escape; }
 
-    // Defensive: if frontend sends null tools, keep an empty list
     public void setTools(List<Item> tools) {
         this.tools = (tools == null) ? new ArrayList<>() : new ArrayList<>(tools);
     }
@@ -69,7 +84,6 @@ public class Heist {
         return subtotal;
     }
 
-    // (Optional) Keep printSummary if you still use it anywhere
     public void printSummary(int heistNumber) {
         StringBuilder summary = new StringBuilder();
         summary.append("\n========================================\n");
